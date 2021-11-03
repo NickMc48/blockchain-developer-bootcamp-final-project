@@ -4,6 +4,7 @@ My final project proposal is a Deficiency Reporting (DR) System run by smart con
 This will be a chain with priviliged access as items with a DR against them are likely at least Critical Unclassified Information.
 
 A typical work flow should proceed as follows:
+<<<<<<< HEAD
 1) Any USER may open a DR against an item controlled by a CONTENT OWNER in the form of a smart contract.
 2) The CONTENT OWNER of the item will then mark the DR as 'Accepted' if the DR is valid or 'Declined' if invalid.
    1) Accepted: The OWNER will mark the DR as 'Resolved' and will then notify an Approval Authority (AA)
