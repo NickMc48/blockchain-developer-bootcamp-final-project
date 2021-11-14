@@ -1,5 +1,5 @@
 # blockchain-developer-bootcamp-final-project
-My final project proposal is a Deficiency Reporting (DR) System run by smart contracts on a blockchain.
+My final project proposal is a Discrepancy Reporting (DR) System run by smart contracts on a blockchain.
 
 This will be a chain with priviliged access as items with a DR against them are likely at least Critical Unclassified Information.
 

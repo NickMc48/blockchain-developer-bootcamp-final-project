@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-contract DiscrepencyReportManager {
+contract DiscrepancyReportManager {
 
   address public approvalAuthority;
-  uint DR_Count;
-  mapping (uint => DiscrepancyReport) discrepencyReports;
+  uint public DR_Count;
+  mapping (uint => DiscrepancyReport) discrepancyReports;
 
   enum State
   {
@@ -22,7 +22,7 @@ contract DiscrepencyReportManager {
     address submitter;
     address contentOwner;
     State state;
-    string discrepency;
+    string discrepancy;
   }
 
 /******************************/
@@ -30,7 +30,7 @@ contract DiscrepencyReportManager {
 /******************************/
 modifier isContentOwner(uint _DR)
 {
-  require(msg.sender == discrepencyReports[_DR].contentOwner, "Only Content Owner can access this.");
+  require(msg.sender == discrepancyReports[_DR].contentOwner, "Only Content Owner can access this.");
   _;
 }
 
@@ -47,42 +47,42 @@ event LogFixed(uint indexed DR_Count);
 /******************************/
 /*    Contract Functions       */
 /******************************/
-  constructor() public {
+  constructor()  public {
     approvalAuthority = msg.sender;
     DR_Count = 0;
   }
 
   //Allow submission of a new DR
-  function submitDR (address _contentOwner, string memory _discrepency) public
+  function submitDR (address _contentOwner, string memory _discrepancy) public
   {
-    discrepencyReports[DR_Count] = DiscrepancyReport({submitter: msg.sender,
+    discrepancyReports[DR_Count] = DiscrepancyReport({submitter: msg.sender,
                                                       contentOwner: _contentOwner,
                                                       state: State.New,
-                                                      discrepency: _discrepency });
-    DR_Count ++;
+                                                      discrepancy: _discrepancy });
     emit LogSubmission(DR_Count);
-  }
+    DR_Count ++;
+  } 
 
   // Content owner to accept or decline DR
   function determineValidity (uint _DR, State _state) public isContentOwner(_DR)
   {
-    require(discrepencyReports[_DR].state == State.New, "DR validity as already been determined.");
+    require(discrepancyReports[_DR].state == State.New, "DR validity as already been determined.");
     require(_state == State.Accepted || _state == State.Declined, "Invalid state selection.");
 
-    discrepencyReports[_DR].state = _state;
+    discrepancyReports[_DR].state = _state;
 
     if(_state == State.Accepted) emit LogAcceptance(_DR);
     else emit LogDeclination(_DR);
   }
 
   //Content owner has resolved DR
-  function resolveDiscrepencyReport (uint _DR) public isContentOwner(_DR)
+  function resolveDiscrepancyReport (uint _DR) public isContentOwner(_DR)
   {
-    require(discrepencyReports[_DR].state == State.Accepted ||
-            discrepencyReports[_DR].state == State.Rejected,
+    require(discrepancyReports[_DR].state == State.Accepted ||
+            discrepancyReports[_DR].state == State.Rejected,
             "DR must be of state 'Accepted' or 'Rejected'.");
 
-    discrepencyReports[_DR].state = State.Resolved;
+    discrepancyReports[_DR].state = State.Resolved;
     emit LogResolved(DR_Count);
   }
 
@@ -90,11 +90,23 @@ event LogFixed(uint indexed DR_Count);
   function evaluateResolution (uint _DR, State _state) public
   {
     require(msg.sender == approvalAuthority,"Only Approval Authority can evaluate a submitted resolution.");
-    require(discrepencyReports[_DR].state == State.Resolved, "DR is not marked 'Resolved'.");
+    require(discrepancyReports[_DR].state == State.Resolved, "DR is not marked 'Resolved'.");
     require(_state == State.Fixed || _state == State.Rejected, "Invalid state selection.");
 
-    discrepencyReports[_DR].state = _state;
+    discrepancyReports[_DR].state = _state;
     if(_state == State.Fixed) emit LogFixed(_DR);
     else emit LogRejected(_DR);
   }
+
+  //This function required for testing
+  function fetchDiscrepancyReport(uint _DR) public view 
+    returns (address submitter,address contentOwner, State state, string memory discrepancy) 
+  { 
+    submitter = discrepancyReports[_DR].submitter;
+    contentOwner = discrepancyReports[_DR].contentOwner;
+    state = discrepancyReports[_DR].state;
+    discrepancy = discrepancyReports[_DR].discrepancy;
+
+    return (submitter, contentOwner, state, discrepancy); 
+  } 
 }
