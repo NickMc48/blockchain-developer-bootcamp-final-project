@@ -1,6 +1,6 @@
 let BN = web3.utils.BN;
 const DiscrepancyReportManager = artifacts.require("DiscrepancyReportManager");
-let { catchRevert } = require("./exceptionsHelpers.js");
+let { catchRevert, catchValueOutOfBounds } = require("./exceptionsHelpers.js");
 const { items: ItemStruct, isDefined, isPayable, isType } = require("./ast-helper");
 
 
@@ -116,6 +116,13 @@ contract("DiscrepancyReportManager", function (accounts)
         await catchRevert(instance.determineValidity(0, DiscrepancyReportManager.State.Declined, {from: stakeholder}));
         await catchRevert(instance.determineValidity(0, DiscrepancyReportManager.State.Declined, {from: jerry}));
       });
+      it("Should error when an invalid DR is given to the function.", async () =>
+      {
+        await instance.submitDR(bob, "error", {from: alice});
+
+        await catchValueOutOfBounds(instance.determineValidity(-1, DiscrepancyReportManager.State.Declined, {from: bob}),"out-of-bounds");
+        await catchRevert(instance.determineValidity(10, DiscrepancyReportManager.State.Declined, {from: bob}),"out-of-bounds");
+      });
       it("Should error when DR state is not 'New'.", async () =>
       {
         await instance.submitDR(bob, "error", {from: alice});
@@ -172,6 +179,14 @@ contract("DiscrepancyReportManager", function (accounts)
         await catchRevert(instance.resolveDiscrepancyReport(0, {from: alice}));
         await catchRevert(instance.resolveDiscrepancyReport(0, {from: stakeholder}));
         await catchRevert(instance.resolveDiscrepancyReport(0, {from: jerry}));
+      });
+      it("Should error when an invalid DR is given to the function.", async () =>
+      {
+        await instance.submitDR(bob, "error", {from: alice});
+        await instance.determineValidity(0, DiscrepancyReportManager.State.Accepted, {from: bob});
+
+        await catchValueOutOfBounds(instance.resolveDiscrepancyReport(-1, {from: bob}));
+        await catchRevert(instance.resolveDiscrepancyReport(10, {from: bob}));
       });
       it("Should error when state is not 'Accepted' or 'Rejected'.", async () =>
       {
@@ -235,6 +250,15 @@ contract("DiscrepancyReportManager", function (accounts)
         await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: bob}));
         await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: jerry}));
       });
+      it("Should error when an invalid DR is given to the function.", async () =>
+      {
+        await instance.submitDR(bob, "error", {from: alice});
+        await instance.determineValidity(0, DiscrepancyReportManager.State.Accepted, {from: bob});
+        await instance.resolveDiscrepancyReport(0, {from: bob})
+
+        await catchValueOutOfBounds(instance.evaluateResolution(-1, DiscrepancyReportManager.State.Fixed, {from: bob}));
+        await catchRevert(instance.evaluateResolution(10, DiscrepancyReportManager.State.Fixed, {from: bob}));
+      });
       it("Should error if state is not 'Resolved' upon function entry.", async () =>
       {
         await instance.submitDR(bob, "This is gonna be a long one", {from: alice});
@@ -290,6 +314,6 @@ contract("DiscrepancyReportManager", function (accounts)
 
         assert.equal(DRM.logs[0].event, "LogRejected", "'LogRejected' event not recoreded!");
       });
-    });
+     });
   })
 });
