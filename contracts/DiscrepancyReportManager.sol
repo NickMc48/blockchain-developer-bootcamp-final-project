@@ -44,7 +44,7 @@ modifier isContentOwner(uint _DR)
 /// @param _DR The index of the specified Discrepancy Report
 modifier isValidDR(uint _DR)
 {
-  require(_DR >=0 && _DR <= DR_Count, "Invalid DR reference given.");
+  require(_DR <= DR_Count && _DR >=0, "Invalid DR reference given.");
   _;
 }
 
