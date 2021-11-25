@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
 /// @title A managment tool to track Discrepancy Report lifecycles
 /// @author Nick McNally
 /// @notice This contract will basically track the lifecycle of a Sumbitted DR
 /// @dev Future implementation should include milti-signature for the content owner and approval autority.
-contract DiscrepancyReportManager {
-
-  address public approvalAuthority;
+contract DiscrepancyReportManager is AccessControl{
   uint public DR_Count;
   mapping (uint => DiscrepancyReport) discrepancyReports;
 
@@ -79,9 +79,12 @@ event LogFixed(uint indexed DR_Count);
 /*    Contract Functions      */
 /******************************/
 /// @notice Contract constructor
-/// @dev The Approval Authority is currently the address that instantiates the contract. Future progress should allow graceful transfer of Approval Authority.
+/** @dev The Approval Authority is currently the address that 
+    instantiates the contract, represented by the DEFAULT_ADMIN_ROLE
+    through OpenZeppelin's AccessControl.sol. Future progress should 
+    allow graceful transfer and addition of Approval Authority.*/ 
   constructor() {
-    approvalAuthority = msg.sender;
+    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     DR_Count = 0;
   }
 
@@ -141,7 +144,7 @@ event LogFixed(uint indexed DR_Count);
   /// @param _state State selection, only rejected or fixed are valid
   function evaluateResolution (uint _DR, State _state) public isValidDR(_DR)
   {
-    require(msg.sender == approvalAuthority,"Only Approval Authority can evaluate a submitted resolution.");
+    require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender),"Only Approval Authority can evaluate a submitted resolution.");
     require(discrepancyReports[_DR].state == State.Resolved, "DR is not marked 'Resolved'.");
     require(_state == State.Fixed || _state == State.Rejected, "Invalid state selection.");
 

@@ -15,7 +15,7 @@ contract("DiscrepancyReportManager", function (accounts)
   describe("Variables and set-up:", () =>
   {
     it("Should have an owner.", async () => {
-      assert.equal(typeof instance.approvalAuthority, 'function', "The contract has no Approval Authority!"); 
+      assert.equal(typeof instance.DEFAULT_ADMIN_ROLE, 'function', "The contract has no Approval Authority!"); 
     });
     it("Should have an DR Count.", async () => {
       assert.equal(typeof instance.DR_Count, 'function', "The contract has no DR Count!"); 
