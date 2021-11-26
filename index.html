@@ -5,14 +5,48 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discrepancy Report Manager</title>
-    <script> src = 'https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js'</script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 </head>
 <body>
     <h1>Discrepancy Report Manager by NickMc48</h1>
     <div id="mm-detected"> </div>
     <button id="mm-connect">Connect to Wallet</button>
     <div id="mm-currentAccount"></div>
-
+    <br>
+    <h2>Contract Interactions:</h2>
+    <div>DR Selection: 
+        <input id="DR_Index" type="number" placeholder="0">
+        <button id="btn_SelectDR">Select</button>
+        <label id="lbl_DR_Index" for="DR_Index"></label>
+    </div>
+    <div>Submit DR: 
+        <input id="DR_error" type="text" placeholder="Discrepancy">
+        <input id="DR_ContentOwner" type="text" placeholder="Content Owner Address">
+        <button id="btn_SubmitDR">Submit</button>
+    </div>
+    <div id="Validate"> Validate DR:
+        <input id="radio_Accepted" type="radio" value="Accepted" name="Validation">
+        <label for="radio_Accepted">Accepted</label>
+        <input id="radio_Declined" type="radio" value="Declined" name="Validation">
+        <label for="radio_Declined">Declined</label>
+        <button id="btn_ValidateDR">Validate</button>
+    </div>
+    <div>Resolve DR: 
+        <button id="btn_ResolveDR">Resolve</button>
+    </div>
+    <div>Evaluate DR resolution: 
+        <input id="radio_Fixed" type="radio" value="Fixed" name="Evaluation">
+        <label for="radio_Fixed">Fixed</label>
+        <input id="radio_Rejected" type="radio" value="Rejected" name="Evaluation">
+        <label for="radio_Rejected">Rejected</label>
+        <button id="btn_EvaluateDR">Evaluate</button>
+    </div>
+    <h2>Selected Discrepancy Report:</h2>
+    <div id="selected_DR_Submitter"></div>
+    <div id="selected_DR_ContentOwner"></div>
+    <div id="selected_DR_State"></div>
+    <div id="selected_DR_Discrepancy"></div>
+ 
     <script src="app.js"></script>
 </body>
 </html>
