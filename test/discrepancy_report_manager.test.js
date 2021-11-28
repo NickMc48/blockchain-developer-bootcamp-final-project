@@ -14,9 +14,6 @@ contract("DiscrepancyReportManager", function (accounts)
 
   describe("Variables and set-up:", () =>
   {
-    it("Should have an owner.", async () => {
-      assert.equal(typeof instance.DEFAULT_ADMIN_ROLE, 'function', "The contract has no Approval Authority!"); 
-    });
     it("Should have an DR Count.", async () => {
       assert.equal(typeof instance.DR_Count, 'function', "The contract has no DR Count!"); 
     });
@@ -165,7 +162,7 @@ contract("DiscrepancyReportManager", function (accounts)
 
         assert.equal(result1[2], DiscrepancyReportManager.State.Resolved, "State of DR is not set 'Resolved' from 'Accepted'!");
 
-        await instance.evaluateResolution(0, DiscrepancyReportManager.State.Rejected, {from: stakeholder});
+        await instance.evaluateResolution(0, DiscrepancyReportManager.State.Rejected, {from: alice});
         await instance.resolveDiscrepancyReport(0, {from: bob});
         const result2 = await instance.fetchDiscrepancyReport(0);
 
@@ -205,7 +202,7 @@ contract("DiscrepancyReportManager", function (accounts)
         await catchRevert(instance.resolveDiscrepancyReport(1, {from: bob}));
 
         //Test for State = Fixed
-        await instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed, {from: stakeholder});
+        await instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed, {from: alice});
         await catchRevert(instance.resolveDiscrepancyReport(1, {from: bob}));        
       });
       it("Should emit a LogResolved event when DR is resolved.", async () =>
@@ -224,7 +221,7 @@ contract("DiscrepancyReportManager", function (accounts)
         await instance.submitDR(bob, "You suck", {from: alice});
         await instance.determineValidity(0, DiscrepancyReportManager.State.Accepted, {from: bob});
         await instance.resolveDiscrepancyReport(0, {from: bob});
-        await instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed, {from: stakeholder});
+        await instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed, {from: alice});
         const result = await instance.fetchDiscrepancyReport(0);
 
         assert.equal(result[2], DiscrepancyReportManager.State.Fixed, "State of DR is not set 'Fixed'!");
@@ -235,18 +232,17 @@ contract("DiscrepancyReportManager", function (accounts)
         await instance.submitDR(bob, "You suck", {from: alice});
         await instance.determineValidity(0, DiscrepancyReportManager.State.Accepted, {from: bob});
         await instance.resolveDiscrepancyReport(0, {from: bob});
-        await instance.evaluateResolution(0, DiscrepancyReportManager.State.Rejected, {from: stakeholder});
+        await instance.evaluateResolution(0, DiscrepancyReportManager.State.Rejected, {from: alice});
         const result = await instance.fetchDiscrepancyReport(0);
 
         assert.equal(result[2], DiscrepancyReportManager.State.Rejected, "State of DR is not set 'Rejected'!");
       });
-      it("Should error when not approval authority attempts to modify state.", async () =>
+      it("Should error when not Submitter attempts to modify state.", async () =>
       {
         await instance.submitDR(bob, "error", {from: alice});
         await instance.determineValidity(0, DiscrepancyReportManager.State.Accepted, {from: bob});
         await instance.resolveDiscrepancyReport(0, {from: bob})
 
-        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: alice}));
         await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: bob}));
         await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: jerry}));
       });
@@ -265,25 +261,25 @@ contract("DiscrepancyReportManager", function (accounts)
         await instance.submitDR(bob, "Here is another!", {from: alice});
 
         //Test state 'New'        
-        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: stakeholder}));
+        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: alice}));
 
         //Test state 'Declined'
         await instance.determineValidity(0, DiscrepancyReportManager.State.Declined, {from: bob});
-        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: stakeholder}));
+        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed,{from: alice}));
 
         //Test state 'Accepted
         await instance.determineValidity(1, DiscrepancyReportManager.State.Accepted, {from: bob});
-        await catchRevert(instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed,{from: stakeholder}));
+        await catchRevert(instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed,{from: alice}));
 
         //Test state 'Rejected'
         await instance.resolveDiscrepancyReport(1, {from: bob});
-        instance.evaluateResolution(1, DiscrepancyReportManager.State.Rejected, {from: stakeholder});
-        await catchRevert(instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed,{from: stakeholder}));
+        instance.evaluateResolution(1, DiscrepancyReportManager.State.Rejected, {from: alice});
+        await catchRevert(instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed,{from: alice}));
 
         //Test state 'Fixed'
         await instance.resolveDiscrepancyReport(1, {from: bob});
-        instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed, {from: stakeholder});
-        await catchRevert(instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed,{from: stakeholder}));
+        instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed, {from: alice});
+        await catchRevert(instance.evaluateResolution(1, DiscrepancyReportManager.State.Fixed,{from: alice}));
       });
       it("Should error if selected state is not 'Rejected' or 'Fixed'.", async () =>
       {
@@ -291,17 +287,17 @@ contract("DiscrepancyReportManager", function (accounts)
         await instance.determineValidity(0, DiscrepancyReportManager.State.Accepted, {from: bob});
         await instance.resolveDiscrepancyReport(0, {from: bob});
 
-        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.New,{from: stakeholder}));
-        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Accepted,{from: stakeholder}));
-        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Declined,{from: stakeholder}));
-        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Resolved,{from: stakeholder}));
+        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.New,{from: alice}));
+        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Accepted,{from: alice}));
+        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Declined,{from: alice}));
+        await catchRevert(instance.evaluateResolution(0, DiscrepancyReportManager.State.Resolved,{from: alice}));
       });
       it("Should emit a LogFixed event when DR is fixed. ", async () =>
       {
         await instance.submitDR(bob, "An unkindness.", {from: alice});
         await instance.determineValidity(0, DiscrepancyReportManager.State.Accepted, {from: bob});
         await instance.resolveDiscrepancyReport(0, {from: bob});
-        const DRM = await instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed, {from: stakeholder});
+        const DRM = await instance.evaluateResolution(0, DiscrepancyReportManager.State.Fixed, {from: alice});
 
         assert.equal(DRM.logs[0].event, "LogFixed", "'LogFixed' event not recoreded!");
       });
@@ -310,7 +306,7 @@ contract("DiscrepancyReportManager", function (accounts)
         await instance.submitDR(bob, "An unkindness.", {from: alice});
         await instance.determineValidity(0, DiscrepancyReportManager.State.Accepted, {from: bob});
         await instance.resolveDiscrepancyReport(0, {from: bob});
-        const DRM = await instance.evaluateResolution(0, DiscrepancyReportManager.State.Rejected, {from: stakeholder});
+        const DRM = await instance.evaluateResolution(0, DiscrepancyReportManager.State.Rejected, {from: alice});
 
         assert.equal(DRM.logs[0].event, "LogRejected", "'LogRejected' event not recoreded!");
       });

@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /// @title A managment tool to track Discrepancy Report lifecycles
 /// @author Nick McNally
 /// @notice This contract will basically track the lifecycle of a Sumbitted DR
-/// @dev Future implementation should include milti-signature for the content owner and approval autority.
-contract DiscrepancyReportManager is AccessControl{
+/// @dev Future implementation should include milti-signature authority for the content owner and submitter.
+contract DiscrepancyReportManager {
+  using SafeMath for uint256;
+
   uint public DR_Count;
   mapping (uint => DiscrepancyReport) discrepancyReports;
 
@@ -33,7 +35,7 @@ contract DiscrepancyReportManager is AccessControl{
 /*        Modifiers           */
 /******************************/
 /// @notice Only the owner of the content the DR is written against may access certain functions.
-/// @dev There is no modifier like this for the Approval authority as they only have one access restriced function.
+/// @dev There is no modifier like this for the Submitter as they only have one access restriced function.
 /// @param _DR The index of the specified Discrepancy Report
 modifier isContentOwner(uint _DR)
 {
@@ -79,12 +81,7 @@ event LogFixed(uint indexed DR_Count);
 /*    Contract Functions      */
 /******************************/
 /// @notice Contract constructor
-/** @dev The Approval Authority is currently the address that 
-    instantiates the contract, represented by the DEFAULT_ADMIN_ROLE
-    through OpenZeppelin's AccessControl.sol. Future progress should 
-    allow graceful transfer and addition of Approval Authority.*/ 
   constructor() {
-    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     DR_Count = 0;
   }
 
@@ -100,7 +97,7 @@ event LogFixed(uint indexed DR_Count);
                                                       discrepancy: _discrepancy });
     assert(discrepancyReports[DR_Count].submitter == msg.sender);                                                    
     emit LogSubmission(DR_Count);
-    DR_Count ++;
+    DR_Count = DR_Count.add(1); // Safe Math!!!
   } 
 
   /// @notice Content owner to accept or decline DR
@@ -139,12 +136,12 @@ event LogFixed(uint indexed DR_Count);
     emit LogResolved(DR_Count);
   }
 
-  /// @notice Approval Authority may accept or reject the 'Resolved' DR
+  /// @notice Submitter may accept or reject the 'Resolved' DR
   /// @param _DR The index of the specified Discrepancy Report
   /// @param _state State selection, only rejected or fixed are valid
   function evaluateResolution (uint _DR, State _state) public isValidDR(_DR)
   {
-    require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender),"Only Approval Authority can evaluate a submitted resolution.");
+    require(discrepancyReports[_DR].submitter == msg.sender,"Only Submitter can evaluate a submitted resolution.");
     require(discrepancyReports[_DR].state == State.Resolved, "DR is not marked 'Resolved'.");
     require(_state == State.Fixed || _state == State.Rejected, "Invalid state selection.");
 
