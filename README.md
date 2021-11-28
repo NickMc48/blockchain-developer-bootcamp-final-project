@@ -11,14 +11,14 @@ A typical work flow should proceed as follows:
    2) Declined: SUBMITTER can then be notified the DR they have submitted is invalid per the   CONTENT OWNER.
 
 ## Folder Structure
-build/contracts
-   Contains .json files from which the ABI is pulled.
-contracts
-   Contains the Discrepancy Report Manager contract as well as the standard migration contract.
-migrations
-   Contains Javascript files detailing how to deploy selected contracts.
-test
-   Contains files required to run all local tests for this project.
+-build/contracts
+   -Contains .json files from which the ABI is pulled.
+-contracts
+   -Contains the Discrepancy Report Manager contract as well as the standard migration contract.
+-migrations
+   -Contains Javascript files detailing how to deploy selected contracts.
+-test
+   -Contains files required to run all local tests for this project.
 
 
 ## Public Ethereum Account for NFT
@@ -28,9 +28,13 @@ test
 
 ## Front-end location
 This was developed using HTML and Javascript (I am sure it wil be ovbious, but this is my first web 'app', sorry.)
+URL:
 ```
-URL: http://NickMc48.github.io
-Repository: https://github.com/NickMc48/NickMc48.github.io
+ http://NickMc48.github.io
+ ```
+ Repository: 
+ ```
+https://github.com/NickMc48/NickMc48.github.io
 ```
 
 ## Contract Location
