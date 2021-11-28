@@ -18157,6 +18157,12 @@
     "version": "0.8.10+commit.fc410830.Emscripten.clang"
   },
   "networks": {
+    "4": {
+      "events": {},
+      "links": {},
+      "address": "0x9Ff7f6d8D8b1Cd70669c11a9D17E327F8268b61D",
+      "transactionHash": "0xb53bed5e8a76725670bb0b02ff03750ed50322b6bdb88bd595f5c1fb98dbc5c2"
+    },
     "5777": {
       "events": {},
       "links": {},
@@ -18165,7 +18171,7 @@
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-28T02:59:13.860Z",
+  "updatedAt": "2021-11-28T16:36:16.808Z",
   "networkType": "ethereum",
   "devdoc": {
     "author": "Nick McNally",
