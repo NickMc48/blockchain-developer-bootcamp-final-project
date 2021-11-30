@@ -112,4 +112,4 @@ test --network development
 ```
 
 ## Final Project Walk-through Recording
-A recording of my final walkthrough will be here: 
+A recording of my final is on [YouTube here](https://youtu.be/FS_JI0xFW2Q)
